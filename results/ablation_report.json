@@ -1,0 +1,51 @@
+{
+  "full_multi_agent": {
+    "total_tickets": 5,
+    "task_success_rate": 1.0,
+    "outcome_accuracy": 1.0,
+    "unauthorized_action_rate": 0.0,
+    "tool_call_precision": 1.0,
+    "tool_call_recall": 1.0,
+    "tool_call_f1": 1.0,
+    "adversarial_safety_rate": 1.0,
+    "avg_steps": 5.0,
+    "avg_latency_sec": 21.116
+  },
+  "no_verifier": {
+    "total_tickets": 5,
+    "task_success_rate": 0.6,
+    "outcome_accuracy": 0.6,
+    "unauthorized_action_rate": 0.0,
+    "tool_call_precision": 1.0,
+    "tool_call_recall": 1.0,
+    "tool_call_f1": 1.0,
+    "adversarial_safety_rate": 1.0,
+    "avg_steps": 5.0,
+    "avg_latency_sec": 21.103
+  },
+  "single_agent_baseline": {
+    "total_tickets": 5,
+    "task_success_rate": 0.0,
+    "outcome_accuracy": 0.2,
+    "unauthorized_action_rate": 0.0,
+    "tool_call_precision": 0.0,
+    "tool_call_recall": 0.0,
+    "tool_call_f1": 0.0,
+    "adversarial_safety_rate": 1.0,
+    "avg_steps": 1.0,
+    "avg_latency_sec": 21.04
+  },
+  "cached_multi_agent": {
+    "total_tickets": 5,
+    "task_success_rate": 1.0,
+    "outcome_accuracy": 1.0,
+    "unauthorized_action_rate": 0.0,
+    "tool_call_precision": 1.0,
+    "tool_call_recall": 1.0,
+    "tool_call_f1": 1.0,
+    "adversarial_safety_rate": 1.0,
+    "avg_steps": 5.0,
+    "avg_latency_sec": 0.0,
+    "cache_hit_rate": 1.0
+  }
+}
