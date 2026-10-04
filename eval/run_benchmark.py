@@ -15,8 +15,8 @@ from src.agents.baseline_single import BaselineSingleAgent
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate customer support agents on Arabic benchmark.")
-    parser.add_argument("--agent", choices=["oracle", "baseline"], default="oracle",
-                        help="Agent architecture to evaluate ('oracle' or 'baseline')")
+    parser.add_argument("--agent", choices=["oracle", "baseline", "multi", "graph"], default="oracle",
+                        help="Agent architecture to evaluate ('oracle', 'baseline', or 'multi')")
     parser.add_argument("--split", choices=["dev", "test"], default="dev",
                         help="Dataset split to evaluate on (default: 'dev')")
     parser.add_argument("--limit", type=int, default=None,
@@ -35,6 +35,10 @@ def main():
     elif args.agent == "baseline":
         baseline = BaselineSingleAgent()
         runner = baseline.run
+    elif args.agent in ("multi", "graph"):
+        from src.agents.graph import MultiAgentGraph
+        multi_graph = MultiAgentGraph()
+        runner = multi_graph.run
     else:
         raise ValueError(f"Unknown agent type: {args.agent}")
 

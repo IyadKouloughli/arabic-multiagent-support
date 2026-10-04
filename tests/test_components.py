@@ -140,6 +140,30 @@ def test_arabic_preprocessing():
     assert cleaned == "مرحبا، أهلا بكم في متجرنا، إلى اللقاء يا فاطمة!"
 
 
+def test_multi_agent_graph():
+    from src.agents.graph import MultiAgentGraph
+    sample_ticket = {
+        "ticket_id": "T_TEST_GRAPH",
+        "category": "standard",
+        "customer_id": "C50642",
+        "text": "Salam, je veux savoir l'état de ma commande NW4241472 svp.",
+        "channel": "web_chat",
+        "gold": {
+            "expected_outcome": "resolve",
+            "required_tool_calls": [
+                {"tool": "get_order", "args": {"order_id": "NW4241472", "customer_id": "C50642"}}
+            ],
+            "reply_must_include": ["processing"],
+            "reply_must_not": []
+        }
+    }
+    client = BackendClient()
+    graph = MultiAgentGraph()
+    res = graph.run(sample_ticket, client)
+    assert res["outcome"] == "resolve"
+    assert len(res["tool_calls"]) >= 1
+
+
 if __name__ == "__main__":
     test_arabic_preprocessing()
     test_backend_isolation()
@@ -148,4 +172,5 @@ if __name__ == "__main__":
     test_episodic_store()
     test_args_match()
     test_eval_metrics_with_sample_ticket()
+    test_multi_agent_graph()
     print("All component tests passed successfully!")

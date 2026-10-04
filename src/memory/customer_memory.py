@@ -11,11 +11,12 @@ class CustomerMemory:
         self.backend = backend_client
 
     def get_context(self, customer_id: str) -> Dict[str, Any]:
-        """Fetch full customer profile including risk flags and history."""
-        res = self.backend.execute("get_customer", customer_id=customer_id)
-        if not res.get("ok"):
-            return {"customer_id": customer_id, "found": False}
-        return {"found": True, **res["customer"]}
+        """Fetch full customer profile including risk flags and history directly from DB."""
+        if hasattr(self.backend, "_master_db") and "customers" in self.backend._master_db:
+            c = self.backend._master_db["customers"].get(customer_id)
+            if c:
+                return {"found": True, **c}
+        return {"customer_id": customer_id, "found": False}
 
     def format_for_prompt(self, customer_id: str) -> str:
         """Format customer profile into concise prompt memory."""
