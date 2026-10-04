@@ -1,13 +1,47 @@
+# Version Control
 .git
+.gitignore
+.gitattributes
 .github
+
+# Virtual Environments
 .venv
-__pycache__
-*.pyc
-*.pyo
-*.pyd
-.pytest_cache
-.vscode
-.idea
+venv/
+env/
+ENV/
+
+# Secrets & Environment Files (injected via Docker Compose at runtime)
+.env
+*.env
+*.pem
+*.key
+
+# Python bytecode & cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE & Editor artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Large files & temporary archives
 *.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
 *.log
 results/eval_cache.json
+multi_agent_x3.txt
+
+# OS system files
+.DS_Store
+Thumbs.db
