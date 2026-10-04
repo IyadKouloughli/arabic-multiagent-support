@@ -13,6 +13,11 @@ groq>=1.7.0
 pandas>=2.2.0
 numpy>=1.26.0
 
+# Deployment & Dashboard
+fastapi>=0.115.0
+uvicorn>=0.30.0
+streamlit>=1.40.0
+
 # Optional Arabic NLP & Search
 # camel-tools
 # pyarabic
