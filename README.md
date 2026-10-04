@@ -231,7 +231,7 @@ docker compose up --build -d
 ```
 
 * **API Service**: Accessible at `http://localhost:8000`
-* **Dashboard Service**: Accessible at `http://localhost:8501`
+* **Dashboard Service**: Accessible at `http://localhost:8502` (or configurable via `STREAMLIT_PORT` in `.env`)
 
 ---
 

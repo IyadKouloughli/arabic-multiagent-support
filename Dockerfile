@@ -1,13 +1,6 @@
-# Multi-stage Dockerfile for Arabic-first Customer Support Resolution Agent
-FROM python:3.11-slim as base
+FROM python:3.11-slim AS base
 
 WORKDIR /app
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies
 COPY requirements.txt .
