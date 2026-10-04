@@ -1,0 +1,26 @@
+{
+ "WELCOME10": {
+  "percent": 10,
+  "valid_until": "2026-12-31",
+  "min_cart_usd": 20,
+  "first_order_only": true
+ },
+ "BACK2SCHOOL": {
+  "percent": 15,
+  "valid_until": "2026-09-30",
+  "min_cart_usd": 30,
+  "first_order_only": false
+ },
+ "RAMADAN25": {
+  "percent": 25,
+  "valid_until": "2026-03-31",
+  "min_cart_usd": 40,
+  "first_order_only": false
+ },
+ "SUMMER15": {
+  "percent": 15,
+  "valid_until": "2026-08-31",
+  "min_cart_usd": 25,
+  "first_order_only": false
+ }
+}

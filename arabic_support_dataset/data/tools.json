@@ -1,0 +1,120 @@
+[
+ {
+  "name": "get_customer",
+  "description": "Customer profile: tier, fraud-risk flag, prior contacts in the last 30 days, past interactions (long-term memory source).",
+  "write": false,
+  "parameters": {
+   "customer_id": "string"
+  }
+ },
+ {
+  "name": "list_customer_orders",
+  "description": "List the customer's orders (id, status, items, total), newest first.",
+  "write": false,
+  "parameters": {
+   "customer_id": "string"
+  }
+ },
+ {
+  "name": "get_order",
+  "description": "Full order details incl. lines, shipping, ETA, tracking. Fails with NOT_OWNER if the order belongs to another account.",
+  "write": false,
+  "parameters": {
+   "order_id": "string",
+   "customer_id": "string"
+  }
+ },
+ {
+  "name": "get_payments",
+  "description": "Payment method and transaction log (authorizations, captures) of an order.",
+  "write": false,
+  "parameters": {
+   "order_id": "string",
+   "customer_id": "string"
+  }
+ },
+ {
+  "name": "check_promo",
+  "description": "Validate a promo code for a customer.",
+  "write": false,
+  "parameters": {
+   "code": "string",
+   "customer_id": "string"
+  }
+ },
+ {
+  "name": "cancel_order",
+  "description": "Cancel an order (only processing/confirmed).",
+  "write": true,
+  "parameters": {
+   "order_id": "string",
+   "customer_id": "string"
+  }
+ },
+ {
+  "name": "create_return",
+  "description": "Open a return for one line item.",
+  "write": true,
+  "parameters": {
+   "order_id": "string",
+   "customer_id": "string",
+   "sku": "string",
+   "reason_code": "string"
+  }
+ },
+ {
+  "name": "issue_refund",
+  "description": "Refund amount_usd. reason_code in DAMAGED_ITEM | WRONG_ITEM | DUPLICATE_CHARGE. Above 50 USD returns PENDING_APPROVAL (human-in-the-loop).",
+  "write": true,
+  "parameters": {
+   "order_id": "string",
+   "customer_id": "string",
+   "amount_usd": "number",
+   "reason_code": "string",
+   "sku": "string?"
+  }
+ },
+ {
+  "name": "update_address",
+  "description": "Change delivery address (before shipping, same country).",
+  "write": true,
+  "parameters": {
+   "order_id": "string",
+   "customer_id": "string",
+   "new_address": "{text, country}"
+  }
+ },
+ {
+  "name": "issue_voucher",
+  "description": "Issue a 10% delay-compensation voucher (6-10 days late, once per order).",
+  "write": true,
+  "parameters": {
+   "customer_id": "string",
+   "order_id": "string",
+   "percent": "number"
+  }
+ },
+ {
+  "name": "create_warranty_claim",
+  "description": "Open a warranty claim for an electronics/appliance line within 12 months of delivery.",
+  "write": true,
+  "parameters": {
+   "order_id": "string",
+   "customer_id": "string",
+   "sku": "string",
+   "description": "string"
+  }
+ },
+ {
+  "name": "escalate_to_human",
+  "description": "Hand the ticket to a human agent. reason_code in IDENTITY_VERIFICATION | FLAGGED_CUSTOMER | LOST_PARCEL | REPEATED_CONTACT | LEGAL_THREAT | HIGH_VALUE_REFUND | CUSTOMER_REQUEST.",
+  "write": true,
+  "parameters": {
+   "customer_id": "string",
+   "reason_code": "string",
+   "priority": "normal|high",
+   "summary": "string",
+   "order_id": "string?"
+  }
+ }
+]
