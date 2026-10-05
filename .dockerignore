@@ -1,47 +1,64 @@
-# Version Control
+# ==============================================================================
+# .dockerignore - Project-Specific Docker Exclusion Rules
+# Only production runtime files are included in the container image.
+# ==============================================================================
+
+# Git & Version Control
 .git
 .gitignore
 .gitattributes
 .github
 
-# Virtual Environments
+# Environment Secrets (Injected at runtime via Cloud Run / Docker Compose)
+.env
+.env.example
+*.pem
+*.key
+
+# Local Virtual Environments
 .venv
 venv/
 env/
 ENV/
 
-# Secrets & Environment Files (injected via Docker Compose at runtime)
-.env
-*.env
-*.pem
-*.key
-
-# Python bytecode & cache
+# Python Cache & Bytecode
 __pycache__/
 **/__pycache__/
 *.py[cod]
 *$py.class
 *.so
+
+# Offline Test Suites & Benchmark Evaluation Harness (not needed in production)
+tests/
+eval/
 .pytest_cache/
 .coverage
 htmlcov/
 
-# IDE & Editor artifacts
+# Dataset Synthesis Code & Raw Exports (only data/ and code/backend.py are needed)
+arabic_support_dataset/code/generator.py
+arabic_support_dataset/code/templates.py
+arabic_support_dataset/code/policies.py
+arabic_support_dataset/code/catalog.py
+arabic_support_dataset/code/validate.py
+arabic_support_dataset/data/tickets_flat.csv
+
+# Large Archives & Temp Scratch Files
+*.zip
+arabic_support_dataset.zip
+multi_agent_x3.txt
+*.log
+
+# Offline Evaluation Results Cache (ablation_report.json is kept for the API)
+results/eval_cache.json
+
+# Documentation & Project Specifications
+README.md
+arabic_support_agent_project.md
+LICENSE
+
+# IDE & OS System Files
 .vscode/
 .idea/
-*.swp
-*.swo
-
-# Large files & temporary archives
-*.zip
-*.tar
-*.tar.gz
-*.rar
-*.7z
-*.log
-results/eval_cache.json
-multi_agent_x3.txt
-
-# OS system files
 .DS_Store
 Thumbs.db
