@@ -19,7 +19,7 @@ jobs:
   # JOB 1: Continuous Integration (Automated Testing & Quality Gates)
   # ============================================================================
   test:
-    name: 🧪 Run Unit & Integration Tests
+    name: Run Unit & Integration Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -59,7 +59,7 @@ jobs:
   # JOB 2: Continuous Deployment (Build, Push to Artifact Registry, Deploy Cloud Run)
   # ============================================================================
   deploy-gcp:
-    name: 🚀 Deploy to Google Cloud Run
+    name: Deploy to Google Cloud Run
     needs: test
     if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch') && github.repository_owner != ''
     runs-on: ubuntu-latest
@@ -124,8 +124,8 @@ jobs:
 
       - name: Display Live Deployment URLs
         run: |
-          echo "🎉 Deployment to Google Cloud Run completed successfully!"
+          echo "Deployment to Google Cloud Run completed successfully!"
           API_URL=$(gcloud run services describe ${{ env.API_SERVICE }} --platform managed --region ${{ env.GCP_REGION }} --format 'value(status.url)')
           DASHBOARD_URL=$(gcloud run services describe ${{ env.DASHBOARD_SERVICE }} --platform managed --region ${{ env.GCP_REGION }} --format 'value(status.url)')
-          echo "🔗 FastAPI Production Docs: ${API_URL}/docs"
-          echo "🔗 Streamlit Operations UI: ${DASHBOARD_URL}"
+          echo "FastAPI Production Docs: ${API_URL}/docs"
+          echo "Streamlit Operations UI: ${DASHBOARD_URL}"
