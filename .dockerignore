@@ -39,7 +39,6 @@ htmlcov/
 arabic_support_dataset/code/generator.py
 arabic_support_dataset/code/templates.py
 arabic_support_dataset/code/policies.py
-arabic_support_dataset/code/catalog.py
 arabic_support_dataset/code/validate.py
 arabic_support_dataset/data/tickets_flat.csv
 

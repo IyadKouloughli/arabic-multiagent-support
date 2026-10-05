@@ -1,0 +1,37 @@
+# Environment secrets & cloud keys
+.env
+.env.*
+*.env
+gcp-sa-key.json
+*-key.json
+*.pem
+*.key
+
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local logs & caches
+*.log
+results/eval_cache.json
+
+# Large dataset archives
+*.zip
+*.tar.gz
+
+# IDE & Editor files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -6,15 +6,17 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code and dataset
+# Copy application code and dataset (honoring .dockerignore)
 COPY . .
+
+# Ensure entrypoint has Unix line endings and execute permissions
+RUN sed -i 's/\r$//' /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# Expose ports: 8000 for FastAPI API, 8501 for Streamlit Dashboard
+# Expose default ports
 EXPOSE 8000
 EXPOSE 8501
 
-# Default command launches FastAPI service
-CMD ["uvicorn", "src.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["/app/entrypoint.sh"]
