@@ -5,7 +5,10 @@ from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
 
-load_dotenv(override=True)
+if not os.getenv("CI"):
+    load_dotenv(override=True)
+else:
+    load_dotenv(override=False)
 
 # Base directories
 BASE_DIR = Path(__file__).resolve().parent.parent

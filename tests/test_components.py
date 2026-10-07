@@ -141,6 +141,10 @@ def test_arabic_preprocessing():
 
 
 def test_multi_agent_graph():
+    from src.config import GOOGLE_API_KEY
+    if not GOOGLE_API_KEY or "mock" in GOOGLE_API_KEY.lower():
+        print("Skipping live LLM test_multi_agent_graph in CI environment.")
+        return
     from src.agents.graph import MultiAgentGraph
     sample_ticket = {
         "ticket_id": "T_TEST_GRAPH",
