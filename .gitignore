@@ -25,6 +25,7 @@ htmlcov/
 # Local logs & caches
 *.log
 results/eval_cache.json
+multi_agent_x3.txt
 
 # Large dataset archives
 *.zip

@@ -1,13 +1,5 @@
 # Nawras Market: Arabic-First Autonomous Customer Support Resolution System
 
-[![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![LangGraph](https://img.shields.io/badge/Orchestration-LangGraph%201.2+-orange.svg)](https://github.com/langchain-ai/langgraph)
-[![LLM](https://img.shields.io/badge/Model-Gemini%203.8%20Flash-green.svg)](https://deepmind.google/technologies/gemini/)
-[![FastAPI](https://img.shields.io/badge/API-FastAPI-009688.svg)](https://fastapi.tiangolo.com)
-[![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg)](https://streamlit.io)
-[![Docker](https://img.shields.io/badge/Container-Docker%20Compose-2496ED.svg)](https://www.docker.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
 An autonomous multi-agent customer support resolution platform designed for the linguistic and operational complexities of the Arabic-speaking market. The system integrates **LangGraph** orchestration, **Gemini 3.8 Flash**, policy-grounded retrieval-augmented generation (RAG), deterministic tool execution against a stateful mock backend, and human-in-the-loop (HITL) approval governance.
 
 Evaluated on an empirical benchmark of **437 customer tickets** spanning Modern Standard Arabic (MSA) and six dialect varieties, the platform achieves **100% task success**, **0.0% unauthorized actions**, and a **+40% accuracy improvement** over unverified architectures.
@@ -177,8 +169,8 @@ Arabic-first-Customer-Support-Resolution-Agent/
 Clone the repository and set up a virtual environment:
 
 ```bash
-git clone https://github.com/<YOUR-USERNAME>/arabic-customer-resolution-agent.git
-cd arabic-customer-resolution-agent
+git clone https://github.com/IyadKouloughli/arabic-multiagent-support.git
+cd arabic-multiagent-support
 
 python -m venv .venv
 
@@ -306,7 +298,7 @@ The repository includes a 3-stage GitHub Actions workflow configured in `.github
    * Automatically pushes the image to **GitHub Container Registry (`ghcr.io`)** under your repository package namespace.
    * Publicly pullable using:
      ```bash
-     docker pull ghcr.io/<YOUR-USERNAME>/arabic-customer-resolution-agent:latest
+     docker pull ghcr.io/iyadkouloughli/arabic-multiagent-support:latest
      ```
 3. **Cloud Deployment (CD)**:
    * Conditioned on cloud credentials (`GCP_SA_KEY` and `GCP_PROJECT_ID`).
