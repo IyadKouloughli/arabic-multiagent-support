@@ -1,4 +1,4 @@
-name: CI/CD Pipeline - Test & Deploy to GCP Cloud Run
+name: CI/CD Pipeline - Test, Docker Registry & Cloud Deploy
 
 on:
   push:
@@ -56,12 +56,57 @@ jobs:
           python tests/test_api.py
 
   # ============================================================================
-  # JOB 2: Continuous Deployment (Build, Push to Artifact Registry, Deploy Cloud Run)
+  # JOB 2: Docker Build & Publish to GitHub Container Registry (100% Free)
+  # ============================================================================
+  docker-build-publish:
+    name: Build & Publish Container Image (GHCR)
+    needs: test
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry (ghcr.io)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=sha
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================================================
+  # JOB 3: Continuous Deployment to Google Cloud Run (Triggers when credentials exist)
   # ============================================================================
   deploy-gcp:
     name: Deploy to Google Cloud Run
-    needs: test
-    if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch') && github.repository_owner != ''
+    needs: [test, docker-build-publish]
+    if: ${{ secrets.GCP_SA_KEY != '' && secrets.GCP_PROJECT_ID != '' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -81,7 +126,7 @@ jobs:
         run: |
           gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev --quiet
 
-      - name: Build & Tag Docker Image
+      - name: Build & Tag Docker Image for GCP
         run: |
           REGISTRY_URL="${{ env.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.IMAGE_NAME }}"
           docker build \
