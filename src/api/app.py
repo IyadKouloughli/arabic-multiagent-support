@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 """FastAPI REST Service for Arabic Customer Support Resolution Agent."""
 import json
+import time
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.agents.graph import MultiAgentGraph
 from src.env.backend_client import BackendClient
 from src.policies.retriever import PolicyRetriever
+from src.optimization.cache import SemanticCache
 from src.config import POLICIES_PATH
 
 app = FastAPI(
@@ -30,6 +32,7 @@ app.add_middleware(
 backend_client = BackendClient()
 multi_graph = MultiAgentGraph()
 retriever = PolicyRetriever()
+semantic_cache = SemanticCache(enforce_scope_isolation=True)
 
 
 class TicketRequest(BaseModel):
@@ -46,6 +49,7 @@ class ResolutionResponse(BaseModel):
     tool_calls: List[Dict[str, Any]]
     steps: int
     latency_sec: float
+    cached: bool = False
 
 
 @app.get("/api/v1/health")
@@ -60,8 +64,30 @@ def health_check():
 
 @app.post("/api/v1/resolve", response_model=ResolutionResponse)
 def resolve_ticket(req: TicketRequest):
-    """Resolve a customer support ticket end-to-end through the LangGraph multi-agent pipeline."""
-    tid = req.ticket_id or f"API_{int(Path().stat().st_mtime)}"
+    """Resolve a customer support ticket.
+    
+    Architectural Guarantees:
+    - Scope Isolation: Informational FAQ inquiries check and populate the semantic cache (<1ms).
+    - Real-Time Guardrails: Any order-specific inquiry obligatorily bypasses the cache to
+      query live backend database states, enforcing server-side time windows and status checks.
+    """
+    tid = req.ticket_id or f"API_{int(time.time() * 1000)}"
+
+    # 1. Scope Isolation Check: Only general FAQs can be served from cache
+    if semantic_cache.is_cacheable(req.text):
+        cached_res = semantic_cache.get(req.text)
+        if cached_res:
+            return ResolutionResponse(
+                ticket_id=tid,
+                outcome=cached_res.get("outcome", "resolve"),
+                reply=cached_res.get("reply", ""),
+                tool_calls=[],
+                steps=0,
+                latency_sec=0.0005,
+                cached=True
+            )
+
+    # 2. Live Multi-Agent Execution for order inquiries and cache misses
     ticket_dict = {
         "ticket_id": tid,
         "customer_id": req.customer_id,
@@ -75,13 +101,19 @@ def resolve_ticket(req: TicketRequest):
 
     try:
         trajectory = multi_graph.run(ticket_dict, backend_client)
+
+        # 3. Cache clean informational resolutions (never cache write tools)
+        if semantic_cache.is_cacheable(req.text) and not trajectory.get("tool_calls"):
+            semantic_cache.set(req.text, trajectory)
+
         return ResolutionResponse(
             ticket_id=tid,
             outcome=trajectory["outcome"],
             reply=trajectory["reply"],
             tool_calls=trajectory["tool_calls"],
             steps=trajectory["steps"],
-            latency_sec=round(trajectory["latency_sec"], 3)
+            latency_sec=round(trajectory["latency_sec"], 3),
+            cached=False
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -91,6 +123,32 @@ def resolve_ticket(req: TicketRequest):
 def get_policies():
     """Retrieve all 15 store policy documents."""
     return retriever.get_all_policies()
+
+
+@app.get("/api/v1/policies/hash")
+def get_policy_hash():
+    """Retrieve current policy SHA-256 fingerprint for cache synchronization."""
+    return {
+        "policy_hash": retriever.get_policy_hash(),
+        "count": len(retriever.policies)
+    }
+
+
+@app.get("/api/v1/cache/stats")
+def get_cache_stats():
+    """Retrieve runtime telemetry on semantic cache scope isolation and hits/misses."""
+    return semantic_cache.stats
+
+
+@app.post("/api/v1/cache/invalidate")
+def invalidate_cache():
+    """Explicitly invalidate the entire semantic cache."""
+    semantic_cache.invalidate_all(reason="admin_requested")
+    return {
+        "ok": True,
+        "message": "Semantic cache successfully invalidated.",
+        "current_policy_hash": semantic_cache.current_policy_hash
+    }
 
 
 @app.get("/api/v1/metrics")

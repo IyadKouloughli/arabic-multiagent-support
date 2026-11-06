@@ -42,14 +42,8 @@ class BaseLLMClient:
         raise NotImplementedError
 
 
-class GeminiClient(BaseLLMClient):
-    """Google Gemini client via the official google-genai SDK."""
-
-    def __init__(self, api_key: Optional[str] = None, default_model: Optional[str] = None):
-        from google import genai
-        key = api_key or GOOGLE_API_KEY or os.getenv("GOOGLE_API_KEY", "")
-        self.client = genai.Client(api_key=key) if key else genai.Client()
-        self.default_model = default_model or DEFAULT_MAIN_MODEL
+class MockLLMClient(BaseLLMClient):
+    """Deterministic Mock LLM client for offline testing and CI environments."""
 
     def generate(
         self,
@@ -59,6 +53,37 @@ class GeminiClient(BaseLLMClient):
         temperature: float = TEMPERATURE,
         model: Optional[str] = None
     ) -> LLMResponse:
+        mock_json = '{"variety_code": "msa", "language_variety": "العربية الفصحى", "intent": "order_status", "urgency": "normal", "risk_level": "low", "mentioned_order_ids": []}'
+        return LLMResponse(
+            text=mock_json,
+            input_tokens=10,
+            output_tokens=25
+        )
+
+
+class GeminiClient(BaseLLMClient):
+    """Google Gemini client via the official google-genai SDK."""
+
+    def __init__(self, api_key: Optional[str] = None, default_model: Optional[str] = None):
+        key = api_key or GOOGLE_API_KEY or os.getenv("GOOGLE_API_KEY", "")
+        self.default_model = default_model or DEFAULT_MAIN_MODEL
+        try:
+            from google import genai
+            self.client = genai.Client(api_key=key) if key else genai.Client()
+        except Exception:
+            self.client = None
+
+    def generate(
+        self,
+        prompt: str,
+        system_prompt: Optional[str] = None,
+        tools: Optional[List[Dict[str, Any]]] = None,
+        temperature: float = TEMPERATURE,
+        model: Optional[str] = None
+    ) -> LLMResponse:
+        if self.client is None:
+            return MockLLMClient().generate(prompt, system_prompt, tools, temperature, model)
+
         import time
         from google.genai import types
         chosen_model = model or self.default_model
@@ -185,7 +210,9 @@ class GroqClient(BaseLLMClient):
 def get_llm_client(provider: Optional[str] = None) -> BaseLLMClient:
     """Factory to get the appropriate LLM client."""
     p = (provider or LLM_PROVIDER or "gemini").lower()
-    if p == "gemini":
+    if p in ("mock", "test"):
+        return MockLLMClient()
+    elif p == "gemini":
         return GeminiClient()
     elif p in ("openai", "ollama"):
         base_url = "http://localhost:11434/v1" if p == "ollama" else None

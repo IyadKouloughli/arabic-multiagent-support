@@ -3,6 +3,7 @@
 import json
 import re
 import math
+import hashlib
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
@@ -52,6 +53,23 @@ class PolicyRetriever:
     def get_all_policies(self) -> List[Dict[str, Any]]:
         """Return all available policies."""
         return list(self.policies)
+
+    def get_policy_hash(self) -> str:
+        """Return SHA-256 fingerprint of current policy definitions for cache synchronization."""
+        path = getattr(self, "policies_path", None) or POLICIES_PATH
+        if path and Path(path).exists():
+            with open(path, "rb") as f:
+                return hashlib.sha256(f.read()).hexdigest()[:16]
+        content = json.dumps(self.policies, sort_keys=True, ensure_ascii=False)
+        return hashlib.sha256(content.encode("utf-8")).hexdigest()[:16]
+
+    def reload_policies(self, new_policies_path: Optional[Path] = None):
+        """Reload policy documents and rebuild the search index."""
+        path = new_policies_path or self.policies_path if hasattr(self, "policies_path") else POLICIES_PATH
+        with open(path, "r", encoding="utf-8") as f:
+            self.policies = json.load(f)
+        self.by_id = {p["policy_id"]: p for p in self.policies}
+        self._build_index()
 
     def search(self, query: str, top_k: int = 3) -> List[Dict[str, Any]]:
         """BM25 search over policy documents."""

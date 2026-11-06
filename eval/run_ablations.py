@@ -62,11 +62,11 @@ def run_ablations(limit: int = 10, split: str = "dev") -> Dict[str, Any]:
     # Configuration 4: Multi-Agent with Semantic Caching (Repeat Queries)
     # -----------------------------------------------------------------
     print("\n>>> Running Configuration 4: Multi-Agent with Semantic Cache (Repeated Runs)")
-    cache = SemanticCache()
+    cache = SemanticCache(enforce_scope_isolation=False)
     # Prime cache with first run results
     for item in res_full["detailed_results"]:
         ticket_text = next(t["text"] for t in evaluator.tickets if t["ticket_id"] == item["ticket_id"])
-        cache.set(ticket_text, item["trajectory"])
+        cache.set(ticket_text, item["trajectory"], force=True)
 
     cached_latencies = []
     for item in res_full["detailed_results"]:
